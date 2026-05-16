@@ -43,7 +43,7 @@ const CARDS_CONFIG = [
   {
     id: "c4",
     label: "Projects",
-    image: "images/notebook.png",
+    image: "images/notebook3.png",
     position: { bottom: "38%", right: "68%" },
     rotation: -15,
     link: "#projects",
@@ -67,11 +67,11 @@ const CARDS_CONFIG = [
   {
     id: "c6",
     label: "Knowledge Base",
-    image: "images/folder.png",
-    position: { bottom: "-38%", right: "58%" },
+    image: "images/folder2.png",
+    position: { bottom: "-25%", right: "65%" },
     rotation: -2,
     link: "#knowledge-base",
-    size: { w: 665, h: 665 },
+    size: { w: 480, h: 480 },
     zIndex: 2,
     labelPosition: "top",
     labelOffset: 130,
