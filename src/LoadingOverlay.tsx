@@ -1,159 +1,156 @@
 import { motion, AnimatePresence } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
-// ─── TYPES ────────────────────────────────────────────────────────────────────
+type Phase = "loading" | "streaming" | "holding" | "revealing";
 
-type Phase =
-  | "streaming"   // pixels flying from corners toward center
-  | "holding"     // logo fully formed, brief pause
-  | "revealing";  // overlay fades out, page fades in
-
-interface Particle {
-  x: number;
-  y: number;
-  tx: number;       // target x (center cluster)
-  ty: number;       // target y (center cluster)
-  sx: number;       // start x
-  sy: number;       // start y
+interface ParticleInit {
+  tx: number; ty: number;
+  sx: number; sy: number;
+  cpx: number; cpy: number;
   size: number;
-  speed: number;    // 0–1 progress per frame multiplier
-  progress: number; // 0 → 1
-  color: string;
-  delay: number;    // frames before starting
+  speed: number;
+  r: number; g: number; b: number;
+  delay: number;
 }
 
-// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+const HOLD_DURATION_MS = 2000;
+const FADE_DURATION_MS = 1600;
+const DISPLAY_SIZE = 300;
+const SAMPLE_STEP = 4;
+const AMBIENT_COUNT = 80;
 
-const PARTICLE_COUNT = 180;
-const STREAM_DURATION_MS = 1800;
-const HOLD_DURATION_MS = 1500;
-const FADE_DURATION_MS = 1000;
+function easeInOutCubic(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
 
-const COLORS = [
-  "rgba(204, 255, 0, 0.9)",   // NOVAe yellow-green
-];
+function bezier(t: number, p0: number, cp: number, p1: number): number {
+  const mt = 1 - t;
+  return mt * mt * p0 + 2 * mt * t * cp + t * t * p1;
+}
 
 // ─── PARTICLE CANVAS ──────────────────────────────────────────────────────────
 
-function ParticleCanvas({ onComplete }: { onComplete: () => void }) {
+function ParticleCanvas({
+  initialParticles,
+  onComplete,
+  phase,
+}: {
+  initialParticles: ParticleInit[];
+  onComplete: () => void;
+  phase: Phase;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particlesRef = useRef<Particle[]>([]);
-  const frameRef = useRef<number>(0);
-  const startTimeRef = useRef<number>(0);
   const doneRef = useRef(false);
+  const frameRef = useRef<number>(0);
+  const phaseRef = useRef(phase);
+  const holdStartRef = useRef<number>(0);
+  const flashRef = useRef({ active: false, progress: 0 });
+
+  useEffect(() => { phaseRef.current = phase; }, [phase]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || initialParticles.length === 0) return;
     const ctx = canvas.getContext("2d")!;
-
     const W = window.innerWidth;
     const H = window.innerHeight;
     canvas.width = W;
     canvas.height = H;
-
     const cx = W / 2;
     const cy = H / 2;
 
-    // Corners: spread particles evenly from 4 corners
-    const corners = [
-      { x: 0, y: 0 },
-      { x: W, y: 0 },
-      { x: 0, y: H },
-      { x: W, y: H },
-    ];
+    const particles = initialParticles.map((p) => ({
+      ...p,
+      x: p.sx, y: p.sy,
+      progress: 0,
+      currentDelay: p.delay,
+      arrived: false,
+    }));
 
-    // Target cluster: small random spread around center (simulates logo mass)
-    const E_GRID = [
-  [0,0,1,1,1,1,0,0],
-  [0,1,1,1,1,1,1,0],
-  [1,1,0,1,1,0,1,1],
-  [1,1,0,0,0,0,1,1],
-  [1,1,1,1,1,1,1,1],
-  [1,1,1,1,1,1,1,1],
-  [1,1,0,0,0,0,0,0],
-  [1,1,0,0,0,0,1,1],
-  [0,1,1,1,1,1,1,0],
-  [0,0,1,1,1,1,0,0],
-  [0,0,0,0,0,0,0,0],
-  [0,1,1,1,1,1,1,0],
-];
+    // Ambient dust
+    const dust = Array.from({ length: AMBIENT_COUNT }, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      size: Math.random() * 1.8 + 0.3,
+      alpha: Math.random() * 0.25 + 0.03,
+      pulse: Math.random() * Math.PI * 2,
+    }));
 
-const CELL_SIZE = 22;
-const GRID_ROWS = E_GRID.length;
-const GRID_COLS = E_GRID[0].length;
-const GRID_W = GRID_COLS * CELL_SIZE;
-const GRID_H = GRID_ROWS * CELL_SIZE;
-const GRID_ORIGIN_X = cx - GRID_W / 2;
-const GRID_ORIGIN_Y = cy - GRID_H / 2;
-
-// Collect all lit cells as possible targets
-const eTargets: { x: number; y: number }[] = [];
-for (let row = 0; row < GRID_ROWS; row++) {
-  for (let col = 0; col < GRID_COLS; col++) {
-    if (E_GRID[row][col] === 1) {
-      eTargets.push({
-        x: GRID_ORIGIN_X + col * CELL_SIZE + CELL_SIZE / 2,
-        y: GRID_ORIGIN_Y + row * CELL_SIZE + CELL_SIZE / 2,
-      });
-    }
-  }
-}
-
-// Assign each particle a target cell (cycling through available cells)
-particlesRef.current = Array.from({ length: PARTICLE_COUNT }, (_, i) => {
-  const corner = corners[i % 4];
-  const target = eTargets[i % eTargets.length];
-  const jitter = 4;
-  return {
-    x: corner.x,
-    y: corner.y,
-    sx: corner.x + (Math.random() - 0.5) * 120,
-    sy: corner.y + (Math.random() - 0.5) * 120,
-    tx: target.x + (Math.random() - 0.5) * jitter,
-    ty: target.y + (Math.random() - 0.5) * jitter,
-    size: Math.random() * 10 + 8,
-    speed: 0.004 + Math.random() * 0.007,
-    progress: 0,
-    color: COLORS[Math.floor(Math.random() * COLORS.length)],
-    delay: Math.floor(Math.random() * 28),
-  };
-});
+    // Shockwave
+    const shockwaves: { progress: number }[] = [];
+    const total = particles.length;
+    const threshold = Math.floor(total * 0.88);
 
     const draw = (timestamp: number) => {
-      if (!startTimeRef.current) startTimeRef.current = timestamp;
-      const elapsed = timestamp - startTimeRef.current;
-
       ctx.clearRect(0, 0, W, H);
 
-      let allArrived = true;
+      // ─── Ambient dust ───
+      for (const d of dust) {
+        d.x += d.vx; d.y += d.vy; d.pulse += 0.015;
+        if (d.x < -10) d.x = W + 10;
+        if (d.x > W + 10) d.x = -10;
+        if (d.y < -10) d.y = H + 10;
+        if (d.y > H + 10) d.y = -10;
 
-      particlesRef.current.forEach((p) => {
-        if (p.delay > 0) {
-          p.delay--;
-          allArrived = false;
-          return;
+        // During streaming, dust gets pulled toward center
+        if (phaseRef.current === "streaming") {
+          const ddx = cx - d.x;
+          const ddy = cy - d.y;
+          const dist = Math.sqrt(ddx * ddx + ddy * ddy) || 1;
+          d.vx += (ddx / dist) * 0.01;
+          d.vy += (ddy / dist) * 0.01;
+          d.vx *= 0.998; d.vy *= 0.998;
+        }
+
+        const a = d.alpha * (0.4 + 0.6 * Math.sin(d.pulse));
+        ctx.globalAlpha = a;
+        ctx.fillStyle = "#ccff00";
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // ─── Main particles ───
+      let arrivedCount = 0;
+
+      for (const p of particles) {
+        if (p.currentDelay > 0) {
+          p.currentDelay--;
+          continue;
         }
 
         if (p.progress < 1) {
-          allArrived = false;
-          // Ease in-out cubic
           p.progress = Math.min(1, p.progress + p.speed);
+        }
+        if (p.progress >= 1) {
+          arrivedCount++;
+          if (!p.arrived) p.arrived = true;
         }
 
         const t = easeInOutCubic(p.progress);
-        p.x = p.sx + (p.tx - p.sx) * t;
-        p.y = p.sy + (p.ty - p.sy) * t;
+        p.x = bezier(t, p.sx, p.cpx, p.tx);
+        p.y = bezier(t, p.sy, p.cpy, p.ty);
 
-        // Trail effect: draw fading tail
-        const tailLength = 6;
-        for (let j = tailLength; j >= 0; j--) {
-          const tj = easeInOutCubic(Math.max(0, p.progress - j * 0.025));
-          const tx_ = p.sx + (p.tx - p.sx) * tj;
-          const ty_ = p.sy + (p.ty - p.sy) * tj;
-          const alpha = ((tailLength - j) / tailLength) * 0.35;
-          ctx.fillStyle = p.color.replace(/[\d.]+\)$/, `${alpha})`);
-          ctx.fillRect(tx_ - p.size / 2, ty_ - p.size / 2, p.size * 0.6, p.size * 0.6);
+        // ─── Color shift: start white/cyan, end at actual color ───
+        const colorT = Math.min(1, p.progress * 1.8);
+        const cr = Math.round(255 + (p.r - 255) * colorT);
+        const cg = Math.round(255 + (p.g - 255) * colorT);
+        const cb = Math.round(255 + (p.b - 255) * colorT);
+
+        // ─── Glow trail (while moving) ───
+        if (p.progress < 0.9 && p.progress > 0.01) {
+          const trailSteps = 8;
+          for (let j = trailSteps; j >= 1; j--) {
+            const tj = easeInOutCubic(Math.max(0, p.progress - j * 0.012));
+            const trailX = bezier(tj, p.sx, p.cpx, p.tx);
+            const trailY = bezier(tj, p.sy, p.cpy, p.ty);
+            const alpha = ((trailSteps - j) / trailSteps) * 0.35;
+            const sz = 1.5 + (p.size * 0.4) * (1 - j / trailSteps);
+            ctx.globalAlpha = alpha * 0.6;
+            ctx.fillStyle = `rgb(${cr},${cg},${cb})`;
+            ctx.fillRect(trailX - sz / 2, trailY - sz / 2, sz, sz);
+          }
         }
 
         // Main pixel
@@ -174,7 +171,7 @@ if (arrivedCount >= Math.floor(PARTICLE_COUNT * 0.75) && !doneRef.current) {
 
     frameRef.current = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frameRef.current);
-  }, [onComplete]);
+  }, [initialParticles, onComplete]);
 
   return (
     <canvas
@@ -185,13 +182,10 @@ if (arrivedCount >= Math.floor(PARTICLE_COUNT * 0.75) && !doneRef.current) {
         width: "100%",
         height: "100%",
         pointerEvents: "none",
+        zIndex: 5,
       }}
     />
   );
-}
-
-function easeInOutCubic(t: number): number {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
 // ─── LOADING OVERLAY ──────────────────────────────────────────────────────────
@@ -201,32 +195,106 @@ interface LoadingOverlayProps {
 }
 
 export function LoadingOverlay({ onRevealComplete }: LoadingOverlayProps) {
-  const [phase, setPhase] = useState<Phase>("streaming");
-  const [logoScale, setLogoScale] = useState(0);
+  const [phase, setPhase] = useState<Phase>("loading");
+  const [particles, setParticles] = useState<ParticleInit[]>([]);
   const [overlayOpacity, setOverlayOpacity] = useState(1);
 
-  // When particles finish → show logo → hold → reveal
-  const handleParticlesDone = () => {
-    // Snap logo in
-    setLogoScale(1);
-    setPhase("holding");
+  useEffect(() => {
+    const img = new Image();
+    img.src = "images/nova_e.png";
+    img.onload = () => {
+      const off = document.createElement("canvas");
+      off.width = DISPLAY_SIZE;
+      off.height = DISPLAY_SIZE;
+      const offCtx = off.getContext("2d")!;
+      offCtx.drawImage(img, 0, 0, DISPLAY_SIZE, DISPLAY_SIZE);
 
+      const data = offCtx.getImageData(0, 0, DISPLAY_SIZE, DISPLAY_SIZE).data;
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      const cxPage = W / 2;
+      const cyPage = H / 2;
+      const originX = cxPage - DISPLAY_SIZE / 2;
+      const originY = cyPage - DISPLAY_SIZE / 2;
+
+      const corners = [
+        { x: -120, y: -120 },
+        { x: W + 120, y: -120 },
+        { x: -120, y: H + 120 },
+        { x: W + 120, y: H + 120 },
+      ];
+
+      const result: ParticleInit[] = [];
+
+      for (let y = 0; y < DISPLAY_SIZE; y += SAMPLE_STEP) {
+        for (let x = 0; x < DISPLAY_SIZE; x += SAMPLE_STEP) {
+          const idx = (y * DISPLAY_SIZE + x) * 4;
+          const r = data[idx];
+          const g = data[idx + 1];
+          const b = data[idx + 2];
+          const a = data[idx + 3];
+
+          if (a > 80) {
+            const corner = corners[Math.floor(Math.random() * 4)];
+            const dx = x - DISPLAY_SIZE / 2;
+            const dy = y - DISPLAY_SIZE / 2;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const maxDist = DISPLAY_SIZE * 0.72;
+
+            const sx = corner.x + (Math.random() - 0.5) * 300;
+            const sy = corner.y + (Math.random() - 0.5) * 300;
+            const tx = originX + x;
+            const ty = originY + y;
+
+            // Stronger bezier curvature for dramatic arcs
+            const mx = (sx + tx) / 2;
+            const my = (sy + ty) / 2;
+            const pdx = tx - sx;
+            const pdy = ty - sy;
+            const len = Math.sqrt(pdx * pdx + pdy * pdy) || 1;
+            const curveDir = Math.random() > 0.5 ? 1 : -1;
+            const curvature = 0.25 + Math.random() * 0.35;
+            const cpx = mx + (-pdy / len) * curvature * len * curveDir;
+            const cpy = my + (pdx / len) * curvature * len * curveDir;
+
+            result.push({
+              tx, ty, sx, sy, cpx, cpy,
+              size: SAMPLE_STEP,
+              speed: 0.003 + Math.random() * 0.006,
+              r, g, b,
+              delay: Math.floor(Math.random() * 25 + (dist / maxDist) * 25),
+            });
+          }
+        }
+      }
+
+      setParticles(result);
+      setPhase("streaming");
+    };
+  }, []);
+
+  const handleDone = useCallback(() => {
+    setPhase("holding");
     setTimeout(() => {
-  onRevealComplete(); // ← page starts fading in NOW, while e is still glowing
-  setTimeout(() => {
-    setPhase("revealing"); // ← e starts fading out a bit later
-  }, 600);
-}, HOLD_DURATION_MS);
-  };
+      onRevealComplete();
+      setTimeout(() => setPhase("revealing"), 700);
+    }, HOLD_DURATION_MS);
+  }, [onRevealComplete]);
 
   return (
     <AnimatePresence>
-      {phase !== "revealing" || overlayOpacity > 0 ? (
+      {(phase !== "revealing" || overlayOpacity > 0) ? (
         <motion.div
           key="overlay"
-          initial={{ opacity: 1 }}
-          animate={{ opacity: phase === "revealing" ? 0 : 1 }}
-          transition={{ duration: FADE_DURATION_MS / 1000, ease: "easeInOut" }}
+          initial={{ opacity: 1, scale: 1 }}
+          animate={{
+            opacity: phase === "revealing" ? 0 : 1,
+            scale: phase === "revealing" ? 1.08 : 1,
+          }}
+          transition={{
+            duration: FADE_DURATION_MS / 1000,
+            ease: [0.16, 1, 0.3, 1],
+          }}
           onAnimationComplete={() => {
             if (phase === "revealing") setOverlayOpacity(0);
           }}
@@ -234,14 +302,8 @@ export function LoadingOverlay({ onRevealComplete }: LoadingOverlayProps) {
             position: "fixed",
             inset: 0,
             zIndex: 999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
             overflow: "hidden",
-            // Blurred bg image — so dark it reads as near-black
-            backgroundImage: "url('images/background.png')",
-            backgroundSize: "100% 100%",
-            backgroundPosition: "center",
+            background: "#020204",
           }}
         >
           {/* Heavy blur + dark overlay to make bg near-black */}
@@ -307,37 +369,18 @@ export function LoadingOverlay({ onRevealComplete }: LoadingOverlayProps) {
                   "drop-shadow(0 0 12px rgba(204,255,0,0.25)) drop-shadow(0 0 4px rgba(204,255,0,0.35))",
               }}
             />
+          )}
 
-            {/* Pixel scatter ring around logo on formation */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.7 }}
-              animate={{
-                opacity: phase === "holding" ? [0, 0.7, 0] : 0,
-                scale: phase === "holding" ? [0.7, 1.4, 1.8] : 0.7,
-              }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              style={{
-                position: "absolute",
-                inset: -40,
-                borderRadius: "50%",
-                border: "1px solid rgba(204,255,0,0.3)",
-                pointerEvents: "none",
-              }}
-            />
-          </motion.div>
-
-          {/* Scanline texture overlay */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage:
-                "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px)",
-              pointerEvents: "none",
-              zIndex: 4,
-              opacity: 0.4,
-            }}
-          />
+          {/* Scanline texture */}
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage:
+              "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px)",
+            pointerEvents: "none",
+            zIndex: 8,
+            opacity: 0.25,
+          }} />
         </motion.div>
       ) : null}
     </AnimatePresence>

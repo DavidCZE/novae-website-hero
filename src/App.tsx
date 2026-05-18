@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from "motion/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LoadingOverlay } from "./LoadingOverlay";
-import { EntryScreen } from "./EntryScreen";
 
  
 const CARDS_CONFIG = [
@@ -319,6 +318,21 @@ export function HeroSection() {
           pointerEvents: "none",
         }}
       />
+      {/* Logo landing table */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 30,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: 400,
+          height: 40,
+          background: "linear-gradient(to top, #111, #333)",
+          borderRadius: 12,
+          zIndex: 5,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.6)",
+        }}
+      ></div>
  
       {/* Floating cards */}
       <div style={{ position: "absolute", inset: 0, zIndex: 10 }}>
@@ -398,23 +412,17 @@ export function HeroSection() {
 }
 
 export default function App() {
-  const [stage, setStage] = useState<"entry" | "loading" | "ready">("entry");
+  const [stage, setStage] = useState<"loading" | "ready">("loading");
 
-  const handleEnter = () => {
+  // Auto-play audio on mount
+  useEffect(() => {
     const audio = new Audio("images/audio2.mp3");
     audio.volume = 1.0;
     audio.play().catch(() => {});
-    setStage("loading");
-  };
+  }, []);
 
   return (
     <>
-      <AnimatePresence>
-        {stage === "entry" && (
-          <EntryScreen onEnter={handleEnter} />
-        )}
-      </AnimatePresence>
-
       <AnimatePresence>
         {stage === "loading" && (
           <LoadingOverlay onRevealComplete={() => setStage("ready")} />
