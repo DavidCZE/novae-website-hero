@@ -12,7 +12,7 @@ const CARDS_CONFIG = [
     position: { top: "58%", left: "32%" },
     rotation: 10,
     link: "#partnerships",
-    size: { w: 480, h: 290 },
+    size: { w: 450, h: 260 },
     zIndex: 3,
     labelPosition: "top",
     labelOffset: 40,
@@ -21,23 +21,23 @@ const CARDS_CONFIG = [
     id: "c2",
     label: "NOVAe",
     image: "images/novae.png",
-    position: { top: "2%", left: "26%" },
+    position: { top: "5%", left: "28%" },
     rotation: 15,
     link: "#novae",
-    size: { w: 610, h: 520 },
+    size: { w: 550, h: 460 },
     zIndex: 2,
     labelPosition: "top",
-    labelOffset: 90,
+    labelOffset: 70,
 
   },
   {
     id: "c3",
     label: "Newsletter",
     image: "images/newsletter.png",
-    position: { top: "-6%", right: "-22%" },
+    position: { top: "25%", right: "-12%" },
     rotation: 20,
     link: "#newsletter",
-    size: { w: 880, h: 380 },
+    size: { w: 735, h: 335 },
     zIndex: 4,
     labelOffset: 90,
     labelPosition: "bottom",
@@ -46,10 +46,10 @@ const CARDS_CONFIG = [
     id: "c4",
     label: "Projects",
     image: "images/notebook.png",
-    position: { bottom: "38%", right: "68%" },
+    position: { bottom: "40%", right: "73%" },
     rotation: -15,
     link: "#projects",
-    size: { w: 370, h: 450 },
+    size: { w: 330, h: 410 },
     zIndex: 2,
     labelOffset: 40,
     labelPosition: "bottom",
@@ -58,85 +58,97 @@ const CARDS_CONFIG = [
     id: "c5",
     label: "Meet the Team",
     image: "images/photo.png",
-    position: { bottom: "10%", left: "66%" },
-    rotation: 15,
+    position: { bottom: "-8%", left: "0%" },
+    rotation: -15,
     link: "#team",
-    size: { w: 420, h: 330 },
+    size: { w: 430, h: 340 },
     zIndex: 3,
-    labelOffset: 10,
-    labelPosition: "bottom",
+    labelOffset: 25,
+    labelPosition: "top",
   },
   {
     id: "c6",
     label: "Knowledge Base",
     image: "images/folder2.png",
-    position: { bottom: "-25%", right: "65%" },
-    rotation: -2,
+    position: { bottom: "-30%", right: "0%" },
+    rotation: 20,
     link: "#knowledge-base",
-    size: { w: 480, h: 480 },
+    size: { w: 450, h: 450 },
     zIndex: 2,
     labelPosition: "top",
     labelOffset: 50,
+  },
+{
+    id: "c7",
+    label: "Daily Games",
+    image: "images/videogame.png",
+    position: { bottom: "44%", right: "-5%" },
+    rotation: 15,
+    link: "#daily-games",
+    size: { w: 380, h: 380 },
+    zIndex: 2,
+    labelPosition: "bottom",
+    labelOffset: 65,
   },
 ];
  
  
 export function Navbar() { 
-  return (
-    <motion.nav
-      initial={{ opacity: 0, y: -12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-      onClick={() => window.location.href = "#"}
-      style={{
-        cursor: "pointer",
-        position: "fixed",
-        top: -10, left: "84%", right: 0,
-        zIndex: 100,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "0 40px",
-        height: "40px",
-        width: "80px",
-        backdropFilter: "blur(16px) saturate(1.4)",
-        WebkitBackdropFilter: "blur(16px) saturate(1.4)",
-        background: "rgb(255, 255, 255, 0.08)",
-        boxShadow: "0 6px 16px rgba(0,0,0,0.18)",
-        margin: 24,
-        borderRadius: 40,
-      }}
-    >
-      {/* Logo */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{
-          display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-        }}>
-          <img
-      src="images/console.png"
-      alt="Minigames"
-      style={{
-        width: 25,
-        height: 25,
-        objectFit: "contain",
-      }}
-    />
-        </div>
-        <span style={{
-          fontFamily: "'Inter', sans-serif",
-          fontWeight: 300,
-          fontSize: "15px",
-          color: "rgba(255,255,255,0.88)",
-          letterSpacing: "0.04em",
-          whiteSpace: "nowrap",
-        }}>
-          Mini Games
-        </span>
-      </div>
-    </motion.nav>
-  );
+  // return (
+  //   <motion.nav
+  //     initial={{ opacity: 0, y: -12 }}
+  //     animate={{ opacity: 1, y: 0 }}
+  //     transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+  //     onClick={() => window.location.href = "#"}
+  //     style={{
+  //       cursor: "pointer",
+  //       position: "fixed",
+  //       top: -10, left: "84%", right: 0,
+  //       zIndex: 100,
+  //       display: "flex",
+  //       alignItems: "center",
+  //       justifyContent: "center",
+  //       padding: "0 40px",
+  //       height: "40px",
+  //       width: "80px",
+  //       backdropFilter: "blur(16px) saturate(1.4)",
+  //       WebkitBackdropFilter: "blur(16px) saturate(1.4)",
+  //       background: "rgb(255, 255, 255, 0.08)",
+  //       boxShadow: "0 6px 16px rgba(0,0,0,0.18)",
+  //       margin: 24,
+  //       borderRadius: 40,
+  //     }}
+  //   >
+  //     {/* Logo */}
+  //     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+  //       <div style={{
+  //         display: "flex",
+  //   alignItems: "center",
+  //   justifyContent: "center",
+  //       }}>
+  //         <img
+  //     src="images/console.png"
+  //     alt="Minigames"
+  //     style={{
+  //       width: 25,
+  //       height: 25,
+  //       objectFit: "contain",
+  //     }}
+  //   />
+  //       </div>
+  //       <span style={{
+  //         fontFamily: "'Inter', sans-serif",
+  //         fontWeight: 300,
+  //         fontSize: "15px",
+  //         color: "rgba(255,255,255,0.88)",
+  //         letterSpacing: "0.04em",
+  //         whiteSpace: "nowrap",
+  //       }}>
+  //         Mini Games
+  //       </span>
+  //     </div>
+  //   </motion.nav>
+  // );
 }
  
  
@@ -320,6 +332,7 @@ export function HeroSection() {
         }}
       />
       {/* Logo landing table */}
+      {/*
       <div
         style={{
           position: "absolute",
@@ -334,6 +347,7 @@ export function HeroSection() {
           boxShadow: "0 4px 12px rgba(0,0,0,0.6)",
         }}
       ></div>
+      */}
  
       {/* Floating cards */}
       <div style={{ position: "absolute", inset: 0, zIndex: 10 }}>
