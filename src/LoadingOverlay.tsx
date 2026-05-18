@@ -166,7 +166,7 @@ if (arrivedCount >= Math.floor(PARTICLE_COUNT * 0.75) && !doneRef.current) {
   doneRef.current = true;
   setTimeout(() => {
     onComplete();
-  }, 800);
+  }, 550);
 }
 
       frameRef.current = requestAnimationFrame(draw);
@@ -300,8 +300,8 @@ export function LoadingOverlay({ onRevealComplete }: LoadingOverlayProps) {
               src="images/nova_e.png"
               alt="NOVAe"
               style={{
-                width: 400,
-                height: 400,
+                width: 480,
+                height: 480,
                 objectFit: "contain",
                 filter:
                   "drop-shadow(0 0 12px rgba(204,255,0,0.25)) drop-shadow(0 0 4px rgba(204,255,0,0.35))",
