@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect } from "react";
 import { LoadingOverlay } from "./LoadingOverlay";
+import { EntryScreen } from "./EntryScreen";
 
  
 const CARDS_CONFIG = [
@@ -412,17 +413,23 @@ export function HeroSection() {
 }
 
 export default function App() {
-  const [stage, setStage] = useState<"loading" | "ready">("loading");
+  const [stage, setStage] = useState<"entry" | "loading" | "ready">("entry");
 
-  // Auto-play audio on mount
-  useEffect(() => {
+  const handleEnter = () => {
     const audio = new Audio("images/audio2.mp3");
     audio.volume = 1.0;
     audio.play().catch(() => {});
-  }, []);
+    setStage("loading");
+  };
 
   return (
     <>
+      <AnimatePresence>
+        {stage === "entry" && (
+          <EntryScreen onEnter={handleEnter} />
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {stage === "loading" && (
           <LoadingOverlay onRevealComplete={() => setStage("ready")} />
