@@ -153,102 +153,18 @@ function ParticleCanvas({
           }
         }
 
-        // ─── Particle size: grow as it approaches ───
-        const sizeT = Math.min(1, p.progress * 2);
-        const currentSize = p.arrived
-          ? p.size  // exact size when settled
-          : 1 + (p.size - 1) * easeInOutCubic(sizeT);
+        // Main pixel
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+      });
 
-        // ─── Glow halo ───
-        if (p.progress > 0.5) {
-          const glowAlpha = 0.12 * Math.min(1, (p.progress - 0.5) * 4);
-          ctx.globalAlpha = glowAlpha;
-          ctx.fillStyle = `rgb(${cr},${cg},${cb})`;
-          const gs = currentSize + 4;
-          ctx.fillRect(
-            Math.round(p.x) - 2,
-            Math.round(p.y) - 2,
-            gs, gs
-          );
-        }
-
-        // ─── Main pixel ───
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = p.arrived
-          ? `rgb(${p.r},${p.g},${p.b})`
-          : `rgb(${cr},${cg},${cb})`;
-
-        if (p.arrived) {
-          // Pixel-perfect snap when settled
-          ctx.fillRect(Math.round(p.tx), Math.round(p.ty), p.size, p.size);
-        } else {
-          ctx.fillRect(
-            Math.round(p.x),
-            Math.round(p.y),
-            currentSize, currentSize
-          );
-        }
-      }
-
-      // ─── Breathing glow during hold ───
-      if (phaseRef.current === "holding") {
-        if (!holdStartRef.current) holdStartRef.current = timestamp;
-        const elapsed = timestamp - holdStartRef.current;
-        const breathe = 0.5 + 0.5 * Math.sin(elapsed * 0.0025);
-
-        ctx.globalAlpha = 0.06 + breathe * 0.05;
-        const grad = ctx.createRadialGradient(cx, cy, 10, cx, cy, DISPLAY_SIZE * 0.9);
-        grad.addColorStop(0, "rgba(204,255,0,0.5)");
-        grad.addColorStop(0.4, "rgba(204,255,0,0.15)");
-        grad.addColorStop(1, "transparent");
-        ctx.fillStyle = grad;
-        ctx.fillRect(cx - DISPLAY_SIZE, cy - DISPLAY_SIZE, DISPLAY_SIZE * 2, DISPLAY_SIZE * 2);
-      }
-
-      // ─── Bloom flash ───
-      if (flashRef.current.active) {
-        flashRef.current.progress += 0.018;
-        if (flashRef.current.progress < 1) {
-          const fp = flashRef.current.progress;
-          // Bright center flash
-          ctx.globalAlpha = (1 - fp) * 0.5;
-          const flashGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, DISPLAY_SIZE * (0.5 + fp * 1.5));
-          flashGrad.addColorStop(0, "rgba(255,255,255,0.8)");
-          flashGrad.addColorStop(0.3, "rgba(204,255,0,0.3)");
-          flashGrad.addColorStop(1, "transparent");
-          ctx.fillStyle = flashGrad;
-          ctx.fillRect(0, 0, W, H);
-        }
-      }
-
-      // ─── Shockwave rings ───
-      for (let i = shockwaves.length - 1; i >= 0; i--) {
-        const sw = shockwaves[i];
-        sw.progress += 0.01;
-        if (sw.progress >= 1) {
-          shockwaves.splice(i, 1);
-          continue;
-        }
-        const radius = 30 + sw.progress * DISPLAY_SIZE * 1.5;
-        const alpha = (1 - sw.progress) * 0.5;
-        ctx.globalAlpha = alpha;
-        ctx.strokeStyle = "#ccff00";
-        ctx.lineWidth = 1.5 * (1 - sw.progress);
-        ctx.beginPath();
-        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-
-      ctx.globalAlpha = 1;
-
-      // ─── Completion ───
-      if (arrivedCount >= threshold && !doneRef.current) {
-        doneRef.current = true;
-        flashRef.current.active = true;
-        shockwaves.push({ progress: 0 });
-        setTimeout(() => shockwaves.push({ progress: 0 }), 150);
-        setTimeout(onComplete, 600);
-      }
+      const arrivedCount = particlesRef.current.filter(p => p.progress >= 1).length;
+if (arrivedCount >= Math.floor(PARTICLE_COUNT * 0.75) && !doneRef.current) {
+  doneRef.current = true;
+  setTimeout(() => {
+    onComplete();
+  }, 550);
+}
 
       frameRef.current = requestAnimationFrame(draw);
     };
@@ -390,20 +306,68 @@ export function LoadingOverlay({ onRevealComplete }: LoadingOverlayProps) {
             background: "#020204",
           }}
         >
-          {/* Subtle radial vignette */}
-          <div style={{
-            position: "absolute",
-            inset: 0,
-            background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%)",
-            pointerEvents: "none",
-            zIndex: 3,
-          }} />
+          {/* Heavy blur + dark overlay to make bg near-black */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backdropFilter: "blur(40px) brightness(0.08)",
+              WebkitBackdropFilter: "blur(40px) brightness(0.08)",
+              background: "rgba(4,4,4,0.82)",
+            }}
+          />
 
-          {phase !== "loading" && (
-            <ParticleCanvas
-              initialParticles={particles}
-              onComplete={handleDone}
-              phase={phase}
+          {/* Pixel particle canvas */}
+          {phase === "streaming" && (
+            <ParticleCanvas onComplete={handleParticlesDone} />
+          )}
+
+          {/* Radial glow behind logo */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.4 }}
+            animate={{
+              opacity: phase === "holding" || phase === "revealing" ? 0.6 : 0,
+              scale: phase === "holding" || phase === "revealing" ? 1.2 : 0.4,
+            }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              position: "absolute",
+              width: 320,
+              height: 320,
+              borderRadius: "50%",
+              background:
+                "radial-gradient(ellipse, rgba(204,255,0,0.18) 0%, transparent 70%)",
+              pointerEvents: "none",
+              zIndex: 2,
+            }}
+          />
+
+          {/* Logo — the 'e' image */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{
+              opacity: logoScale,
+              scale: 1,
+            }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              position: "relative",
+              zIndex: 3,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <img
+              src="images/nova_e.png"
+              alt="NOVAe"
+              style={{
+                width: 480,
+                height: 480,
+                objectFit: "contain",
+                filter:
+                  "drop-shadow(0 0 12px rgba(204,255,0,0.25)) drop-shadow(0 0 4px rgba(204,255,0,0.35))",
+              }}
             />
           )}
 
