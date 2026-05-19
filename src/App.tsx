@@ -172,11 +172,13 @@ function FloatingCard({ card, index}) {
       style={positionStyle}
       initial={{ opacity: 0, y: 30, rotate: baseRotate }}
       animate={{ opacity: 1, y: 0, rotate: baseRotate }}
-      transition={{
-        opacity: { duration: 0.8, delay: 0.4 + index * 0.1, ease: [0.16, 1, 0.3, 1] },
-        y: { duration: 1.1, delay: 0.4 + index * 0.1, ease: [0.16, 1, 0.3, 1] },
-        rotate: { duration: 0 },
-      }}
+     transition={{
+  opacity: { duration: 0.8, delay: 0.4 + index * 0.1, ease: [0.16, 1, 0.3, 1] },
+  y: { duration: 0.2, ease: "easeOut" },
+  x: { duration: 0.2, ease: "easeOut" },
+  scale: { duration: 0.2, ease: "easeOut" },
+  rotate: { duration: 0.2, ease: "easeOut" },
+}}
       whileHover={{
         y: -14,
         x: card.rotation > 0 ? 5 : -5,
@@ -291,14 +293,14 @@ export function HeroSection() {
     >
       {/* Background — swap this div's backgroundImage for any asset */}
       <div style={{
-        position: "absolute",
-        inset: 0,
-        background: "url('images/background.png')",
-        zIndex: 0,
-        backgroundSize: "100% 100%",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }} />
+  position: "absolute",
+  inset: 0,
+  background: "url('images/background3.png')",
+  zIndex: 0,
+  backgroundSize: "100% 100%",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+}} />
  
       {/* Subtle noise grain */}
       <div style={{
