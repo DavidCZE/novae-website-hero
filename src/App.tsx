@@ -8,9 +8,9 @@ const CARDS_CONFIG = [
   {
     id: "c1",
     label: "Partnerships",
-    image: "images/cards.png",
+    image: "images/cards2.png",
     position: { top: "62%", left: "33%" },
-    rotation: 10,
+    rotation: 5,
     link: "#partnerships",
     size: { w: 430, h: 240 },
     zIndex: 3,
@@ -93,62 +93,75 @@ const CARDS_CONFIG = [
 ];
  
  
-export function Navbar() { 
-  // return (
-  //   <motion.nav
-  //     initial={{ opacity: 0, y: -12 }}
-  //     animate={{ opacity: 1, y: 0 }}
-  //     transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-  //     onClick={() => window.location.href = "#"}
-  //     style={{
-  //       cursor: "pointer",
-  //       position: "fixed",
-  //       top: -10, left: "84%", right: 0,
-  //       zIndex: 100,
-  //       display: "flex",
-  //       alignItems: "center",
-  //       justifyContent: "center",
-  //       padding: "0 40px",
-  //       height: "40px",
-  //       width: "80px",
-  //       backdropFilter: "blur(16px) saturate(1.4)",
-  //       WebkitBackdropFilter: "blur(16px) saturate(1.4)",
-  //       background: "rgb(255, 255, 255, 0.08)",
-  //       boxShadow: "0 6px 16px rgba(0,0,0,0.18)",
-  //       margin: 24,
-  //       borderRadius: 40,
-  //     }}
-  //   >
-  //     {/* Logo */}
-  //     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-  //       <div style={{
-  //         display: "flex",
-  //   alignItems: "center",
-  //   justifyContent: "center",
-  //       }}>
-  //         <img
-  //     src="images/console.png"
-  //     alt="Minigames"
-  //     style={{
-  //       width: 25,
-  //       height: 25,
-  //       objectFit: "contain",
-  //     }}
-  //   />
-  //       </div>
-  //       <span style={{
-  //         fontFamily: "'Inter', sans-serif",
-  //         fontWeight: 300,
-  //         fontSize: "15px",
-  //         color: "rgba(255,255,255,0.88)",
-  //         letterSpacing: "0.04em",
-  //         whiteSpace: "nowrap",
-  //       }}>
-  //         Mini Games
-  //       </span>
-  //     </div>
-  //   </motion.nav>
-  // );
+const NAV_LINKS = [
+  { label: "About Us", href: "#novae" },
+  { label: "Projects", href: "#projects" },
+  { label: "Partnerships", href: "#partnerships" },
+  { label: "Team", href: "#team" },
+  { label: "Newsletter", href: "#newsletter" },
+  { label: "Knowledge Base", href: "#knowledge-base" },
+];
+
+function NavLink({ label, href }: { label: string; href: string }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <a
+      href={href}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        position: "relative",
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: "10px",
+        fontWeight: 400,
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+        color: hovered ? "#ccff00" : "rgba(255,255,255,0.55)",
+        transition: "color 0.22s ease",
+        textDecoration: "none",
+        paddingBottom: 4,
+      }}
+    >
+      {label}
+      <motion.div
+        animate={{ scaleX: hovered ? 1 : 0, opacity: hovered ? 1 : 0 }}
+        transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: "1px",
+          background: "#ccff00",
+          transformOrigin: "left",
+        }}
+      />
+    </a>
+  );
+}
+
+export function Navbar() {
+  return (
+    <motion.nav
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+      style={{
+        position: "fixed",
+        top: 24,
+        right: 32,
+        zIndex: 100,
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        pointerEvents: "auto",
+      }}
+    >
+      {NAV_LINKS.map((link) => (
+        <NavLink key={link.href} label={link.label} href={link.href} />
+      ))}
+    </motion.nav>
+  );
 }
  
  
@@ -327,10 +340,10 @@ export function HeroSection() {
   }}
   style={{
     position: "absolute",
-    top: -220,
-    left: -190,
+    top: -170,
+    left: -150,
     zIndex: 15,
-    width: 1100, // adjust depending on your design
+    width: 900, // adjust depending on your design
     height: "auto",
     pointerEvents: "none",
     userSelect: "none",
@@ -352,8 +365,8 @@ export function HeroSection() {
   }}
   style={{
     position: "absolute",
-    top: 35,
-    left: 450,
+    top: 30,
+    left: 480,
     zIndex: 15,
     width: 120, // adjust depending on your design
     height: "auto",
