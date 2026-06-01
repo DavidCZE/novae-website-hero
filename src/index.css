@@ -10,10 +10,9 @@ body {
 
 /* ─── Tablet Landscape ─────────────────────────────────────── */
 @media (max-width: 1180px) and (orientation: landscape) {
-
   .hero-content {
-    transform: scale(0.72);
-    transform-origin: top left;
+    transform: scale(0.65);
+    transform-origin: top center;
   }
 
   /* Scale down the frosted glass box */
@@ -25,7 +24,7 @@ body {
 
 @media (max-width: 900px) and (orientation: landscape) {
   .hero-content {
-    transform: scale(0.58);
-    transform-origin: top left;
+    transform: scale(0.50);
+    transform-origin: top center;
   }
 }
