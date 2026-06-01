@@ -297,6 +297,7 @@ function FloatingCard({ card, index}) {
 export function HeroSection() {
   return (
     <section
+      className="hero-section"
       style={{
         position: "relative",
         width: "100vw",
@@ -415,7 +416,7 @@ export function HeroSection() {
       */}
  
       {/* Floating cards */}
-      <div style={{ position: "absolute", inset: 0, zIndex: 10 }}>
+      <div className="hero-content" style={{ position: "absolute", inset: 0, zIndex: 10 }}>
         {CARDS_CONFIG.map((card, i) => (
           <FloatingCard key={card.id} card={card} index={i} />
         ))}
@@ -487,8 +488,11 @@ export function HeroSection() {
           Click on the elements to explore
         </span>
       </motion.div>
+
+
       {/* Frosted glass text box */}
 <motion.div
+  className="glass-box"
   initial={{ opacity: 0, y: 20 }}
   animate={{ opacity: 1, y: 0 }}
   transition={{ duration: 1.0, delay: 1.4, ease: [0.16, 1, 0.3, 1] }}

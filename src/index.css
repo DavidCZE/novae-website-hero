@@ -7,3 +7,25 @@ body {
   overflow: hidden;
   background: black;
 }
+
+/* ─── Tablet Landscape ─────────────────────────────────────── */
+@media (max-width: 1180px) and (orientation: landscape) {
+
+  .hero-content {
+    transform: scale(0.72);
+    transform-origin: top left;
+  }
+
+  /* Scale down the frosted glass box */
+  .hero-section .glass-box {
+    transform: scale(0.85);
+    transform-origin: bottom left;
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .hero-content {
+    transform: scale(0.58);
+    transform-origin: top left;
+  }
+}
