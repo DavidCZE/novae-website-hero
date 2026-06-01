@@ -331,8 +331,8 @@ export function HeroSection() {
       }} />
  
  
-      {/* <motion.img
-  src="images/slogan.png"
+   <motion.img
+  src="images/slogan2.png"
   alt="BUILD SOMETHING"
   initial={{ opacity: 0, y: -10 }}
   animate={{ opacity: 1, y: 0 }}
@@ -343,17 +343,17 @@ export function HeroSection() {
   }}
   style={{
     position: "absolute",
-    top: -170,
-    left: -150,
+    top: -215,
+    left: -30,
     zIndex: 15,
-    width: 900, // adjust depending on your design
+    width: 600, // adjust depending on your design
     height: "auto",
     pointerEvents: "none",
     userSelect: "none",
   }}
 
 
-/> */}
+/>
 
 
   <motion.img
@@ -369,9 +369,9 @@ export function HeroSection() {
   style={{
     position: "absolute",
     top: 0,
-    left: 50,
+    left: 25,
     zIndex: 15,
-    width: 180, // adjust depending on your design
+    width: 100, // adjust depending on your design
     height: "auto",
     pointerEvents: "none",
     userSelect: "none",
