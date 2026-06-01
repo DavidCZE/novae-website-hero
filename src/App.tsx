@@ -398,23 +398,7 @@ export function HeroSection() {
           pointerEvents: "none",
         }}
       />
-      {/* Logo landing table */}
-      {/*
-      <div
-        style={{
-          position: "absolute",
-          bottom: 30,
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: 400,
-          height: 40,
-          background: "linear-gradient(to top, #111, #333)",
-          borderRadius: 12,
-          zIndex: 5,
-          boxShadow: "0 4px 12px rgba(0,0,0,0.6)",
-        }}
-      ></div>
-      */}
+      
  
       {/* Floating cards */}
       <div className="hero-content" style={{ position: "absolute", inset: 0, zIndex: 10 }}>
@@ -490,8 +474,7 @@ export function HeroSection() {
         </span>
       </motion.div>
 
-
-      {/* Frosted glass text box */}
+{/* Frosted glass text box */}
 <motion.div
   className="glass-box"
   initial={{ opacity: 0, y: 20 }}
@@ -502,58 +485,160 @@ export function HeroSection() {
     bottom: 40,
     left: 40,
     zIndex: 20,
-    width: 240,
+    width: 260,
     backdropFilter: "blur(24px) saturate(1.4)",
     WebkitBackdropFilter: "blur(24px) saturate(1.4)",
     background: "rgba(255,255,255,0.08)",
     border: "0.5px solid rgba(255,255,255,0.14)",
-    borderRadius: 16,
-    padding: "28px 24px",
-    pointerEvents: "none",
+    borderRadius: 20,
+    padding: "24px 20px",
+    pointerEvents: "auto",
+    display: "flex",
+    flexDirection: "column",
+    gap: 16,
   }}
 >
-  {/* Headline */}
-  <p style={{
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: "22px",
-    fontWeight: 700,
-    lineHeight: 1.25,
-    color: "rgba(255,255,255,0.92)",
-    letterSpacing: "0.01em",
-    textTransform: "uppercase",
-    margin: 0,
-  }}>
-    YOUR HEADLINE<br />
-    GOES HERE,<br />
-    REPLACE THIS<br />
-    TEXT.
-  </p>
+  {/* Event CTA */}
+  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <p style={{
+      fontFamily: "'DM Sans', sans-serif",
+      fontSize: "10px",
+      fontWeight: 400,
+      letterSpacing: "0.14em",
+      textTransform: "uppercase",
+      color: "rgba(255,255,255,0.40)",
+      margin: 0,
+    }}>
+      Upcoming Event
+    </p>
+
+    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      {/* Image placeholder — replace with your event image */}
+      <div style={{
+        width: 44,
+        height: 44,
+        borderRadius: 10,
+        background: "rgba(255,255,255,0.08)",
+        border: "0.5px solid rgba(255,255,255,0.14)",
+        flexShrink: 0,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}>
+        <img
+          src="images/logoazul.png"
+          alt="Event"
+          style={{ width: 24, height: 24, objectFit: "contain" }}
+        />
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1 }}>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: "12px",
+          fontWeight: 500,
+          color: "rgba(255,255,255,0.80)",
+          margin: 0,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}>
+          FORGE Hackaton
+        </p>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: "11px",
+          fontWeight: 300,
+          color: "rgba(255,255,255,0.40)",
+          margin: 0,
+        }}>
+          November · Unicorn Factory
+        </p>
+      </div>
+    </div>
+
+    <motion.a
+      href="#event"
+      whileHover={{ background: "rgba(204,255,0,0.15)", borderColor: "rgba(204,255,0,0.5)" }}
+      transition={{ duration: 0.2 }}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "9px 0",
+        borderRadius: 24,
+        background: "rgba(204,255,0,0.08)",
+        border: "0.5px solid rgba(204,255,0,0.25)",
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: "11px",
+        fontWeight: 500,
+        letterSpacing: "0.1em",
+        textTransform: "uppercase",
+        color: "#ccff00",
+        textDecoration: "none",
+        cursor: "pointer",
+      }}
+    >
+      Register
+    </motion.a>
+  </div>
 
   {/* Divider */}
   <div style={{
     width: "100%",
-    height: "0.5px",
-    background: "rgba(255,255,255,0.18)",
-    margin: "20px 0",
-    borderStyle: "dashed",
-    borderWidth: "0.5px 0 0 0",
-    borderColor: "rgba(255,255,255,0.18)",
+    borderTop: "0.5px dashed rgba(255,255,255,0.18)",
   }} />
 
-  {/* Subtitle */}
-  <p style={{
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: "13px",
-    fontWeight: 300,
-    fontStyle: "italic",
-    lineHeight: 1.6,
-    color: "rgba(255,255,255,0.62)",
-    textAlign: "right",
-    margin: 0,
-  }}>
-    Your smaller subtitle<br />
-    text goes here.
-  </p>
+  {/* Newsletter CTA */}
+  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <p style={{
+      fontFamily: "'DM Sans', sans-serif",
+      fontSize: "10px",
+      fontWeight: 400,
+      letterSpacing: "0.14em",
+      textTransform: "uppercase",
+      color: "rgba(255,255,255,0.40)",
+      margin: 0,
+    }}>
+      Newsletter
+    </p>
+
+    <p style={{
+      fontFamily: "'DM Sans', sans-serif",
+      fontSize: "12px",
+      fontWeight: 300,
+      lineHeight: 1.5,
+      color: "rgba(255,255,255,0.55)",
+      margin: 0,
+    }}>
+      Stay up to date with the latest from NOVAe.
+    </p>
+
+    <motion.a
+      href="#newsletter"
+      whileHover={{ background: "rgba(255,255,255,0.14)", borderColor: "rgba(255,255,255,0.3)" }}
+      transition={{ duration: 0.2 }}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "9px 0",
+        borderRadius: 24,
+        background: "rgba(255,255,255,0.07)",
+        border: "0.5px solid rgba(255,255,255,0.16)",
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: "11px",
+        fontWeight: 500,
+        letterSpacing: "0.1em",
+        textTransform: "uppercase",
+        color: "rgba(255,255,255,0.78)",
+        textDecoration: "none",
+        cursor: "pointer",
+      }}
+    >
+      Subscribe
+    </motion.a>
+  </div>
 </motion.div>
     </section>
   );
