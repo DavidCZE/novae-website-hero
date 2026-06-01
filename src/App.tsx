@@ -59,11 +59,11 @@ const CARDS_CONFIG = [
   {
     id: "c6",
     label: "Knowledge Base",
-    image: "images/folder2.png",
-    position: { bottom: "-22%", right: "-4%" },
+    image: "images/folder3.png",
+    position: { bottom: "-18%", right: "-3%" },
     rotation: 20,
     link: "#knowledge-base",
-    size: { w: 370, h: 370 },
+    size: { w: 300, h: 300 },
     zIndex: 2,
     labelPosition: "bottom",
     labelOffset: 200,
@@ -71,11 +71,11 @@ const CARDS_CONFIG = [
   {
     id: "c4",
     label: "Projects",
-    image: "images/notebook3.png",
-    position: { bottom: "-16%", right: "17%" },
-    rotation: -8,
+    image: "images/notebook5.png",
+    position: { bottom: "-16%", right: "15%" },
+    rotation: -7,
     link: "#projects",
-    size: { w: 280, h: 360 },
+    size: { w: 300, h: 380 },
     zIndex: 2,
     labelOffset: 30,
     labelPosition: "top",
@@ -83,7 +83,7 @@ const CARDS_CONFIG = [
   {
     id: "c7",
     label: "Current Project",
-    image: "images/note2.png",
+    image: "images/note3.png",
     position: { bottom: "43%", right: "21%" },
     rotation: 10,
     link: "#current-project",
@@ -563,7 +563,7 @@ export default function App() {
   const [stage, setStage] = useState<"entry" | "loading" | "ready">("entry");
 
   const handleEnter = () => {
-    const audio = new Audio("images/audio4.mp3");
+    const audio = new Audio("");
     audio.volume = 1.0;
     audio.play().catch(() => {});
     setStage("loading");
