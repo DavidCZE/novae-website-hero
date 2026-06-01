@@ -11,8 +11,15 @@ body {
 /* ─── Tablet Landscape ─────────────────────────────────────── */
 @media (max-width: 1180px) and (orientation: landscape) {
   .hero-content {
-    transform: scale(0.65);
+    transform: scale(0.55);
     transform-origin: top center;
+
+    .glass-box {
+      transform: scale(0.75);
+      transform-origin: bottom left;
+      bottom: 20px !important;
+      left: 20px !important;
+    }
   }
 
   /* Scale down the frosted glass box */
