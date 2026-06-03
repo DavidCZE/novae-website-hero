@@ -9,7 +9,7 @@ const CARDS_CONFIG = [
   {
     id: "c1",
     label: "Partnerships",
-    image: "images/cards2.png",
+    image: "images/cards3.png",
     position: { top: "65%", left: "35%" },
     rotation: 5,
     link: "#partnerships",
@@ -67,6 +67,7 @@ const CARDS_CONFIG = [
     zIndex: 2,
     labelPosition: "bottom",
     labelOffset: 200,
+    labelAlign: "left",
   },
   {
     id: "c4",
@@ -485,7 +486,7 @@ export function HeroSection() {
     bottom: 20,
     left: 20,
     zIndex: 20,
-    width: 260,
+    width: 240,
     backdropFilter: "blur(24px) saturate(1.4)",
     WebkitBackdropFilter: "blur(24px) saturate(1.4)",
     background: "rgba(255,255,255,0.08)",
