@@ -482,8 +482,8 @@ export function HeroSection() {
   transition={{ duration: 1.0, delay: 1.4, ease: [0.16, 1, 0.3, 1] }}
   style={{
     position: "absolute",
-    bottom: 40,
-    left: 40,
+    bottom: 20,
+    left: 20,
     zIndex: 20,
     width: 260,
     backdropFilter: "blur(24px) saturate(1.4)",
