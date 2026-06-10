@@ -695,23 +695,20 @@ useEffect(() => {
     const isTablet = isTouch && screenW >= 1024 && screenW <= 1600;
 
     if (isTablet && isLandscape) {
-      const scaleX = screenW / 1920;
-      const scaleY = screenH / 1080;
-      const scale = Math.min(scaleX, scaleY);
-      const scaledW = 1920 * scale;
-      const offsetX = (screenW - scaledW) / 2;
+      const scale = screenW / 1920;
 
       root.style.width = "1920px";
-      root.style.height = "1080px";
+      root.style.height = `${screenH / scale}px`;
       root.style.transform = `scale(${scale})`;
       root.style.transformOrigin = "top left";
       root.style.position = "absolute";
       root.style.top = "0";
-      root.style.left = `${offsetX}px`;
+      root.style.left = "0";
     } else {
       root.style.width = "100vw";
       root.style.height = "100vh";
       root.style.transform = "none";
+      root.style.transformOrigin = "top left";
       root.style.position = "relative";
       root.style.top = "auto";
       root.style.left = "auto";
@@ -720,9 +717,7 @@ useEffect(() => {
 
   applyScale();
   window.addEventListener("resize", applyScale);
-  window.addEventListener("orientationchange", () => {
-    setTimeout(applyScale, 100);
-  });
+  window.addEventListener("orientationchange", () => setTimeout(applyScale, 150));
 
   return () => {
     window.removeEventListener("resize", applyScale);
