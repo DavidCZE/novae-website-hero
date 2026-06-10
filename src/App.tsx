@@ -684,18 +684,49 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
-  const setScale = () => {
-    const scaleX = window.innerWidth / 1920;
-    const scaleY = window.innerHeight / 1080;
-    const scale = Math.min(scaleX, scaleY);
-    document.documentElement.style.setProperty("--tablet-scale", String(scale));
+  const applyScale = () => {
+    const root = document.querySelector(".hero-scale-root") as HTMLElement;
+    if (!root) return;
+
+    const screenW = window.innerWidth;
+    const screenH = window.innerHeight;
+    const isTouch = navigator.maxTouchPoints > 0;
+    const isLandscape = screenW > screenH;
+    const isTablet = isTouch && screenW >= 1024 && screenW <= 1600;
+
+    if (isTablet && isLandscape) {
+      const scaleX = screenW / 1920;
+      const scaleY = screenH / 1080;
+      const scale = Math.min(scaleX, scaleY);
+      const scaledW = 1920 * scale;
+      const offsetX = (screenW - scaledW) / 2;
+
+      root.style.width = "1920px";
+      root.style.height = "1080px";
+      root.style.transform = `scale(${scale})`;
+      root.style.transformOrigin = "top left";
+      root.style.position = "absolute";
+      root.style.top = "0";
+      root.style.left = `${offsetX}px`;
+    } else {
+      root.style.width = "100vw";
+      root.style.height = "100vh";
+      root.style.transform = "none";
+      root.style.position = "relative";
+      root.style.top = "auto";
+      root.style.left = "auto";
+    }
   };
-  setScale();
-  window.addEventListener("resize", setScale);
-  window.addEventListener("orientationchange", setScale);
+
+  applyScale();
+  window.addEventListener("resize", applyScale);
+  window.addEventListener("orientationchange", () => {
+    setTimeout(applyScale, 100);
+  });
+
   return () => {
-    window.removeEventListener("resize", setScale);
-    window.removeEventListener("orientationchange", setScale);
+    window.removeEventListener("resize", applyScale);
+    window.removeEventListener("orientationchange", applyScale);
   };
 }, []);
 

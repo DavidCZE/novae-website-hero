@@ -9,35 +9,7 @@ body {
 }
 
 /* ─── Tablet Landscape Scaling ──────────────────────────────── */
-
 .hero-scale-root {
   width: 100vw;
   height: 100vh;
-  transform-origin: top left;
-}
-
-@media (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (orientation: landscape) {
-  .hero-scale-root {
-    width: 1920px;
-    height: 1080px;
-    transform: scale(var(--tablet-scale));
-    transform-origin: top left;
-    position: absolute;
-    top: 0;
-    left: 50%;
-    translate: -50% 0;
-  }
-}
-
-@media (pointer: coarse) and (min-width: 1181px) and (max-width: 1366px) and (orientation: landscape) {
-  .hero-scale-root {
-    width: 1920px;
-    height: 1080px;
-    transform: scale(var(--tablet-scale));
-    transform-origin: top left;
-    position: absolute;
-    top: 0;
-    left: 50%;
-    translate: -50% 0;
-  }
 }
