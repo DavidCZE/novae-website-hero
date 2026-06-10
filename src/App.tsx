@@ -185,7 +185,7 @@ function FloatingCard({ card, index}) {
     
     <motion.a
       href={card.link}
-      style={positionStyle}
+      style={{ ...positionStyle, pointerEvents: "none" }}
       initial={{ opacity: 0, y: 30, rotate: baseRotate }}
       animate={{ opacity: 1, y: 0, rotate: baseRotate }}
      transition={{
@@ -203,8 +203,6 @@ function FloatingCard({ card, index}) {
         zIndex: 50,
         transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
       }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
     >
       {/* Card body */}
       <motion.div
@@ -222,13 +220,16 @@ function FloatingCard({ card, index}) {
 <img
   src={card.image}
   alt={card.label}
+  onMouseEnter={() => setIsHovered(true)}
+  onMouseLeave={() => setIsHovered(false)}
+  onClick={() => { window.location.href = card.link }}
   style={{
     position: "absolute",
     inset: 0,
     width: "100%",
     height: "100%",
     objectFit: "contain",
-    pointerEvents: "none",
+    pointerEvents: "auto",
     filter: isHovered
       ? "drop-shadow(-7px 8px 10px rgba(0,0,0,0.70)) drop-shadow(-3px 3px 4px rgba(0,0,0,0.50))"
       : "drop-shadow(-12px 20px 10px rgba(0,0,0,0.85)) drop-shadow(-3px 3px 4px rgba(0,0,0,0.50))",
